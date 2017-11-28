@@ -34,7 +34,7 @@ output reg [31:0] rtOut;
 
 reg[31:0] addressBlock[63:0];
 
-always @(posedge clk)
+always @(negedge clk)
 begin
     rsOut = addressBlock[rs];
     rtOut = addressBlock[rt];

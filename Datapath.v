@@ -24,7 +24,7 @@ reg clk;
 //Clock initialization
 initial
 begin
-    clk = 0;
+    clk = 1;
     forever #25 clk = ~clk;
 end
 
@@ -80,7 +80,7 @@ wire [5:0] wb_rd;
 ThreeToOne PCMux(controlA, controlB, pc_plus1, wb_alu, wb_data_out );
 
 //Program Counter 
-PC prog_counter(clk, pc_in, pc_out); 
+PC prog_counter(clk, pc_plus1, pc_out); 
 
 //Increment PC by 1
 ArithmeticLogicUnit IncrementPC(pc_out, pc_out, 4'b0001, pc_plus1, exempt_zero, exempt_neg);
@@ -95,42 +95,45 @@ InstructionMemory InstrMem(pc_out, clk, im_out);
 //IF_ID buffer
 IF_ID_Buf IFIDBuf(clk, im_out, id_out, pc_out, id_alu);
 
+//COntrol
+Control idControl( clk, im_out[31:28], RegWrt, MemToReg, PCToReg, BranchNeg, BranchZero, Jump, JumpMem, ALUOp, MemRead, MemWrt);
+
 //Register Memory
 RegisterMemory RegMemory(id_out[15:10], id_out[21:16], id_out[9:4], wb_mux, RegWrt, rs_out, rt_out, clk);
 
 //Sign Extend
-SignExtend(clock, id_out[31:10], sign_out);
+SignExtend extend(clk, id_out[31:10], sign_out);
 
 //ID ALU
-ArithmeticLogicUnit IncrementPC(sign_out, id_alu, 4'b0000, ext_alu, exempt_zero, exempt_neg);
+ArithmeticLogicUnit idALU(sign_out, id_alu, 4'b0000, ext_alu, exempt_zero, exempt_neg);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //EX Sections
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //ID_EX Buffer
-ID_EX_Buf(clk, RegWrt, MemToReg, PCToReg, BranchNeg, ALUOp, MemRead, MemWrt,BranchZero, Jump, JumpMem, id_out[15:10], id_out[21:16],  id_out[9:4], id_out[31:10], 
+ID_EX_Buf IDEXBuf(clk, RegWrt, MemToReg, PCToReg, BranchNeg, ALUOp, MemRead, MemWrt,BranchZero, Jump, JumpMem,  id_out[21:16],id_out[15:10], id_out[27:22], sign_out, 
                      ex_RegWrt, ex_MemToReg, ex_PCToReg, ex_BranchNeg, ex_ALUOP, ex_MemRead, ex_MemWrt,ex_BranchZero, ex_Jump, ex_JumpMem, ex_rs, ex_rt, ex_rd, ex_ext_alu );
 
 //Data Memory
-DataMemory(clk, ex_MemWrt, ex_MemRead, ex_rs, ex_rt, ex_data_out);
+DataMemory D_memory(clk, ex_MemWrt, ex_MemRead, ex_rs, ex_rt, ex_data_out);
 
 //EX ALU
-ArithmeticLogicUnit(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N);
+ArithmeticLogicUnit exALU(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //WB Section
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //EX_WB Buffer
- EX_WB_Buf(clk, ex_N, ex_Z, ex_MemToReg, ex_PCToReg, ex_BranchNeg, ex_BranchZero, ex_Jump, ex_JumpMem, ex_alu, ex_data_out, ex_rd, ex_ext_alu,
-                     wb_N, wb_Z, wb_MemToReg, wb_PCToReg, 0000000000000, wb_BranchZero, wb_Jump, wb_JumpMem, wb_alu, wb_data_out, wb_rd, wb_ext_alu);
+ EX_WB_Buf exwBuf(clk, ex_N, ex_Z, ex_RegWrt,ex_MemToReg, ex_PCToReg, ex_BranchNeg, ex_BranchZero, ex_Jump, ex_JumpMem, ex_alu, ex_data_out, ex_rd, ex_ext_alu,
+                     wb_N, wb_Z, wb_RegWrt,wb_MemToReg, wb_PCToReg, wb_BranchNeg, wb_BranchZero, wb_Jump, wb_JumpMem, wb_alu, wb_data_out, wb_rd, wb_ext_alu);
 
 //WB Mux
-ThreeToOne(wb_MemToReg, wb_PCToReg, wb_alu, wb_data_out, wb_ext_alu, wb_mux);
+ThreeToOne wbMux(wb_MemToReg, wb_PCToReg, wb_alu, wb_data_out, wb_ext_alu, wb_mux);
 
 //PCSource to get control for IF Mux
-PCSource(ex_N, ex_Z, ex_BranchNeg, ex_BranchZero, ex_Jump, ex_JumpMem, controlA, controlB);
+PCSource branch(ex_N, ex_Z, ex_BranchNeg, ex_BranchZero, ex_Jump, ex_JumpMem, controlA, controlB);
 
 
 endmodule

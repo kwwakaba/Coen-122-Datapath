@@ -30,7 +30,7 @@ initial begin
     out = 0;
 end
 
-always @(posedge clk) 
+always @(negedge clk) 
 begin
     if(in)
     begin

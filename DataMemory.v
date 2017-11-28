@@ -34,7 +34,7 @@ output reg [31:0] dataOut;
 reg[31:0] addressBlock[65535:0];
 
 //Case that if the clock is on the positive edge, we first output the data in the address, and depending on the flags, we read or write
-always @(posedge clk)
+always @(negedge clk)
 begin
     dataOut = addressBlock[address[15:0]];
     if(write_signal == 1)

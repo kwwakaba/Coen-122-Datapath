@@ -30,7 +30,7 @@ output reg [31:0] rs_extended_out;
 // Local memory
 
 // Logic
-always@(posedge clock)
+always@(negedge clock)
 begin
     // Copy rs into lower digits of output
     rs_extended_out [21:0] = rs_in [21:0];
