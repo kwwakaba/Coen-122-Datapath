@@ -20,48 +20,60 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ArithmeticLogicUnit(A, B,opCode, result, zero, neg);
+module ArithmeticLogicUnit(A, B,opCode, result, zero, neg, testA, testInternalA, testB, testOpcode, testResult);
 
     input [31:0] A,B;
     input [3:0] opCode;
     output reg [31:0] result;
     output reg zero;
     output reg neg;
+    output reg [31:0] testA, testB, testOpcode, testResult, testInternalA;
+    
+    reg [31:0] internalA;
         
-    always@(A,B,opCode)
+    always@(B,opCode)
     begin
+    
+    if(A === 32'bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
+        internalA = 32'b0;
+    else
+        internalA = A;
+    
+    
         if(opCode == 4'b0000)           // opCode for adding two values
-            result = B + A;
+            result = B + internalA;
         else if(opCode == 4'b0001)      //opCode for incrmementing a value
             result = B + 1;
         else if(opCode == 4'b0010)      //opCode for negating a value
-            result = 0 + ((~A) + 1 );
+            result = 0 + ((~internalA) + 1 );
         else if(opCode == 4'b0011)      //opCode for subtracting two values
-            result = B + ((~A) + 1);
+            result = B + ((~internalA) + 1);
         else if(opCode == 4'b0100)      //opCode for passing a value
-            result = 0 + A;
+            result = 0 + internalA;
        
-    end
-
-
-    always@(result)
-    begin
-        if(result == 0)                 //Sets the zero flag if the result is zero
+testA = A;
+testInternalA = internalA;
+testB = B;
+testOpcode = opCode;
+testResult = result;
+       
+       
+        if(result == 32'b0)                 //Sets the zero flag if the result is zero
             begin
                 zero = 1;
                 neg = 0;
             end
-        else if(result[31] == 0)             //Sets both flags to zero if result is positive
+        else if(result[31] == 1'b0)             //Sets both flags to zero if result is positive
             begin
                 zero = 0;
                 neg = 0;
             end
-        else if(result[31] == 1)        //Sets the negative flag if the result is negative 
+        else if(result[31] == 1'b1)        //Sets the negative flag if the result is negative 
             begin
                 neg = 1;
                 zero = 0;
             end
-        
+       
     end
 
 endmodule

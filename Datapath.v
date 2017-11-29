@@ -42,6 +42,7 @@ wire [31:0] im_out;
 //ID Section Wires
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+wire [31:0] rs_out, rt_out;
 wire [31:0] id_out;
 wire [31:0] sign_out;
 wire [31:0] id_alu;
@@ -99,27 +100,31 @@ IF_ID_Buf IFIDBuf(clk, im_out, id_out, pc_out, id_alu);
 Control idControl( clk, im_out[31:28], RegWrt, MemToReg, PCToReg, BranchNeg, BranchZero, Jump, JumpMem, ALUOp, MemRead, MemWrt);
 
 //Register Memory
-RegisterMemory RegMemory(id_out[15:10], id_out[21:16], id_out[9:4], wb_mux, RegWrt, rs_out, rt_out, clk);
+wire [5:0] a, b;
+assign a = id_out[15:10];
+assign b = id_out[21:16];
+RegisterMemory RegMemory(id_out[15:10], id_out[21:16], id_out[27:22], wb_mux, RegWrt, rs_out, rt_out, clk);
 
 //Sign Extend
 SignExtend extend(clk, id_out[31:10], sign_out);
 
 //ID ALU
-ArithmeticLogicUnit idALU(sign_out, id_alu, 4'b0000, ext_alu, exempt_zero, exempt_neg);
+ArithmeticLogicUnit idALU(csign_out, id_alu, 4'b0000, ext_alu, exempt_zero, exempt_neg);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //EX Sections
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //ID_EX Buffer
-ID_EX_Buf IDEXBuf(clk, RegWrt, MemToReg, PCToReg, BranchNeg, ALUOp, MemRead, MemWrt,BranchZero, Jump, JumpMem,  id_out[21:16],id_out[15:10], id_out[27:22], sign_out, 
+ID_EX_Buf IDEXBuf(clk, RegWrt, MemToReg, PCToReg, BranchNeg, ALUOp, MemRead, MemWrt,BranchZero, Jump, JumpMem, rs_out, rt_out, id_out[27:22], sign_out, 
                      ex_RegWrt, ex_MemToReg, ex_PCToReg, ex_BranchNeg, ex_ALUOP, ex_MemRead, ex_MemWrt,ex_BranchZero, ex_Jump, ex_JumpMem, ex_rs, ex_rt, ex_rd, ex_ext_alu );
 
 //Data Memory
 DataMemory D_memory(clk, ex_MemWrt, ex_MemRead, ex_rs, ex_rt, ex_data_out);
 
 //EX ALU
-ArithmeticLogicUnit exALU(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N);
+wire [31:0] testA, testB, testOpcode, testResult, testInternalA;
+ArithmeticLogicUnit exALU(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N, testA, testInternalA, testB, testOpcode, testResult);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //WB Section
