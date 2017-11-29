@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module RegisterMemory(rs,rt,rd,dataIn,write_signal, rsOut, rtOut, clk);
+module RegisterMemory(rs,rt,rd,dataIn,write_signal, rsOut, rtOut, clk, test_rs, test_rt, test_rd);
 
 input [5:0] rs;
 input [5:0] rt;
@@ -31,6 +31,10 @@ input clk;
 
 output reg [31:0] rsOut;
 output reg [31:0] rtOut;
+
+output [5:0] test_rs;
+output [5:0] test_rt;
+output [5:0] test_rd;
 
 reg[31:0] addressBlock[63:0];
 

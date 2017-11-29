@@ -51,7 +51,7 @@ output reg MemWrt;
 
 
 // Initialize all outputs to 0. ALU to "No Operation"    
-initial begin
+/*initial begin
     RegWrt = 0;
     MemToReg = 0;
     PCToReg = 0;
@@ -62,9 +62,9 @@ initial begin
     ALU_OP = 4'b1111;
     MemRead = 0;
     MemWrt = 0;
-end
+end*/
     
-always@(opcode, negedge clock)
+always@(opcode, posedge clock)
 begin
     
     // Truth Table. Set Outputs.
@@ -77,6 +77,7 @@ begin
             BranchZero = 0;
             Jump = 0;
             JumpMem = 0;
+                    ALU_OP = 4'b1111;
             MemRead = 0;
             MemWrt = 0;
     end
@@ -87,6 +88,7 @@ begin
             MemRead = 1;
                 PCToReg = 0;
                 BranchNeg = 0;
+                        ALU_OP = 4'b1111;
                 BranchZero = 0;
                 Jump = 0;
                 JumpMem = 0;
@@ -101,6 +103,7 @@ begin
             BranchNeg = 0;
             BranchZero = 0;
             Jump = 0;
+                    ALU_OP = 4'b1111;
             JumpMem = 0;
             MemRead = 0;
         end
@@ -163,6 +166,7 @@ begin
             MemToReg = 0;
             PCToReg = 0;
             BranchNeg = 0;
+                    ALU_OP = 4'b1111;
             BranchZero = 0;
             JumpMem = 0;
             MemRead = 0;
@@ -176,6 +180,7 @@ begin
             PCToReg = 0;
             BranchNeg = 0;
             Jump = 0;
+                    ALU_OP = 4'b1111;
             JumpMem = 0;
             MemRead = 0;
             MemWrt = 0;
@@ -188,6 +193,7 @@ begin
             PCToReg = 0;
             BranchNeg = 0;
             BranchZero = 0;
+                    ALU_OP = 4'b1111;
             Jump = 0;
             MemRead = 0;
             MemWrt = 0;
@@ -199,6 +205,7 @@ begin
             MemToReg = 0;
             PCToReg = 0;
             BranchZero = 0;
+                    ALU_OP = 4'b1111;
             Jump = 0;
             JumpMem = 0;
             MemRead = 0;

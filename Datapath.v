@@ -24,7 +24,7 @@ reg clk;
 //Clock initialization
 initial
 begin
-    clk = 1;
+    clk = 0;
     forever #25 clk = ~clk;
 end
 
@@ -100,16 +100,14 @@ IF_ID_Buf IFIDBuf(clk, im_out, id_out, pc_out, id_alu);
 Control idControl( clk, im_out[31:28], RegWrt, MemToReg, PCToReg, BranchNeg, BranchZero, Jump, JumpMem, ALUOp, MemRead, MemWrt);
 
 //Register Memory
-wire [5:0] a, b;
-assign a = id_out[15:10];
-assign b = id_out[21:16];
-RegisterMemory RegMemory(id_out[15:10], id_out[21:16], id_out[27:22], wb_mux, RegWrt, rs_out, rt_out, clk);
+wire [5:0] test_RM_rs, test_RM_rt, test_RM_rd;
+RegisterMemory RegMemory(id_out[21:16], id_out[15:10], id_out[27:22], wb_mux, RegWrt, rs_out, rt_out, clk, test_RM_rs, test_RM_rt, test_RM_rd);
 
 //Sign Extend
-SignExtend extend(clk, id_out[31:10], sign_out);
+SignExtend extend(clk, id_out[21:0], sign_out);
 
 //ID ALU
-ArithmeticLogicUnit idALU(csign_out, id_alu, 4'b0000, ext_alu, exempt_zero, exempt_neg);
+ArithmeticLogicUnit idALU(sign_out, id_alu, 4'b0000, ext_alu, exempt_zero, exempt_neg);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //EX Sections
@@ -124,7 +122,7 @@ DataMemory D_memory(clk, ex_MemWrt, ex_MemRead, ex_rs, ex_rt, ex_data_out);
 
 //EX ALU
 wire [31:0] testA, testB, testOpcode, testResult, testInternalA;
-ArithmeticLogicUnit exALU(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N, testA, testInternalA, testB, testOpcode, testResult);
+ArithmeticLogicUnit exALU(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N, testA, testB, testInternalA, testOpcode, testResult);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //WB Section
@@ -135,7 +133,7 @@ ArithmeticLogicUnit exALU(ex_rs, ex_rt,ex_ALUOP, ex_alu, ex_Z, ex_N, testA, test
                      wb_N, wb_Z, wb_RegWrt,wb_MemToReg, wb_PCToReg, wb_BranchNeg, wb_BranchZero, wb_Jump, wb_JumpMem, wb_alu, wb_data_out, wb_rd, wb_ext_alu);
 
 //WB Mux
-ThreeToOne wbMux(wb_MemToReg, wb_PCToReg, wb_alu, wb_data_out, wb_ext_alu, wb_mux);
+ThreeToOne wbMux(wb_PCToReg, wb_MemToReg, wb_alu, wb_data_out, wb_ext_alu, wb_mux);
 
 //PCSource to get control for IF Mux
 PCSource branch(ex_N, ex_Z, ex_BranchNeg, ex_BranchZero, ex_Jump, ex_JumpMem, controlA, controlB);

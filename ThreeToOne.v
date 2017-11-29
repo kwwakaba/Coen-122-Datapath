@@ -33,15 +33,10 @@ begin
             if(controlB == 0)
                 out = inA;
             else
-                out = inC;
+                out = inB;
         end
     else
-        begin
-            if(controlB == 0)
-                out = inB;
-            else
-                out = inC;
-        end
+        out = inC;
 end
 
 initial begin

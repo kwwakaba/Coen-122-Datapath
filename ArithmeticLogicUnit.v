@@ -29,25 +29,31 @@ module ArithmeticLogicUnit(A, B,opCode, result, zero, neg, testA, testInternalA,
     output reg neg;
     output reg [31:0] testA, testB, testOpcode, testResult, testInternalA;
     
-    reg [31:0] internalA;
+    reg [31:0] internalA, internalB;
         
-    always@(B,opCode)
+    always@(A or B or opCode)
     begin
     
     if(A === 32'bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
         internalA = 32'b0;
     else
         internalA = A;
+
+    if(B === 32'bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
+        internalB = 32'b0;
+    else
+        internalB = B;
+        
     
     
         if(opCode == 4'b0000)           // opCode for adding two values
-            result = B + internalA;
+            result = internalB + internalA;
         else if(opCode == 4'b0001)      //opCode for incrmementing a value
-            result = B + 1;
+            result = internalB + 1;
         else if(opCode == 4'b0010)      //opCode for negating a value
-            result = 0 + ((~internalA) + 1 );
+            result = (~internalA)+1;
         else if(opCode == 4'b0011)      //opCode for subtracting two values
-            result = B + ((~internalA) + 1);
+            result = internalB + ((~internalA) + 1);
         else if(opCode == 4'b0100)      //opCode for passing a value
             result = 0 + internalA;
        
