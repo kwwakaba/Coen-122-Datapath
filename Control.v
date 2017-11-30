@@ -64,7 +64,7 @@ output reg MemWrt;
     MemWrt = 0;
 end*/
     
-always@(opcode, posedge clock)
+always@(opcode, negedge clock)
 begin
     
     // Truth Table. Set Outputs.

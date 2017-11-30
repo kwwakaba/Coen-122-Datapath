@@ -97,11 +97,11 @@ InstructionMemory InstrMem(pc_out, clk, im_out);
 IF_ID_Buf IFIDBuf(clk, im_out, id_out, pc_out, id_alu);
 
 //COntrol
-Control idControl( clk, im_out[31:28], RegWrt, MemToReg, PCToReg, BranchNeg, BranchZero, Jump, JumpMem, ALUOp, MemRead, MemWrt);
+Control idControl( clk, id_out[31:28], RegWrt, MemToReg, PCToReg, BranchNeg, BranchZero, Jump, JumpMem, ALUOp, MemRead, MemWrt);
 
 //Register Memory
 wire [5:0] test_RM_rs, test_RM_rt, test_RM_rd;
-RegisterMemory RegMemory(id_out[21:16], id_out[15:10], id_out[27:22], wb_mux, RegWrt, rs_out, rt_out, clk, test_RM_rs, test_RM_rt, test_RM_rd);
+RegisterMemory RegMemory(id_out[21:16], id_out[15:10], id_out[27:22], wb_mux, wb_RegWrt, rs_out, rt_out, clk, test_RM_rs, test_RM_rt, test_RM_rd);
 
 //Sign Extend
 SignExtend extend(clk, id_out[21:0], sign_out);
